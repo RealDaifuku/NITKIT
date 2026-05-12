@@ -1,0 +1,13 @@
+train: ../train/images
+val: ../valid/images
+test: ../test/images
+
+nc: 2
+names: ['Daifuku', 'Not Daifuku']
+
+roboflow:
+  workspace: yolo6601110266011079
+  project: detection-h81ju
+  version: 2
+  license: CC BY 4.0
+  url: https://universe.roboflow.com/yolo6601110266011079/detection-h81ju/dataset/2
