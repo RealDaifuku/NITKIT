@@ -115,11 +115,10 @@ LIMITATIONS
 
 FUTURE WORK
 - Collect additional Spaghetti defect samples.
-- Increase dataset diversity.
+- Increase dataset diversity. (Currently the model only recognize one environment setting)
 - Improve data augmentation.
 - Experiment with larger YOLO26 variants.
 - Integrate a real-time inspection dashboard.
-- Develop an Ollama-powered troubleshooting chatbot.
 
 CONCLUSION
 A YOLO26-based object detection model was successfully developed for identifying common 3D printing defects. The model achieved an overall mAP@0.5 of 74.5% and demonstrated excellent performance in detecting Crack defects (AP = 0.940) and strong performance for Stringing defects (AP = 0.793). However, Spaghetti defects (AP = 0.500) remain the most challenging class due to lower recall and higher rates of missed detections.
