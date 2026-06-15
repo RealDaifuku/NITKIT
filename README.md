@@ -1,10 +1,13 @@
 
 3D PRINTING DEFECT DETECTION USING YOLO26
+<img width="568" height="2368" alt="image" src="https://github.com/user-attachments/assets/2b1d3e33-7679-4a0a-85c4-80ab43f482b8" />
 
 PROJECT OVERVIEW
 This project aims to develop an automated defect detection system for Fused Deposition Modeling (FDM) 3D printing using computer vision and deep learning. The system is designed to identify common printing defects from images of printed parts and classify them into predefined defect categories.
 
 The project utilizes the YOLO26 object detection model to detect and classify defects directly from images. The final goal is to integrate the model into a defect inspection workflow and potentially extend it into an intelligent troubleshooting chatbot using Ollama and computer vision.
+
+Qwen3:8B is used for responsive human-like response for ease of comprehension and allows ineteraction to ease the troubleshooting procress.
 
 OBJECTIVES
 - Detect defects in 3D printed parts automatically.
@@ -72,7 +75,7 @@ Spaghetti Detection:
 - Likely caused by limited data and greater visual variation.
 
 CONFUSION MATRIX ANALYSIS
-
+<img width="3000" height="2250" alt="confusion_matrix_normalized" src="https://github.com/user-attachments/assets/0743cf23-3f0a-4479-9360-0506e118fc7c" />
 Correct Detections:
 - Crack: 141
 - Spaghetti: 15
@@ -89,6 +92,8 @@ Normalized Results:
 - Stringing: 78% correctly detected, 22% missed.
 
 F1 SCORE ANALYSIS
+<img width="2250" height="1500" alt="BoxF1_curve" src="https://github.com/user-attachments/assets/ee383279-79a3-4585-a9d5-823f9a1e6fd5" />
+
 Maximum F1 Score = 0.75
 Confidence Threshold = 0.628
 
@@ -122,4 +127,3 @@ The confusion matrix shows that most errors originate from defects being classif
 
 Overall, the model demonstrates that deep-learning-based vision systems can effectively support automated quality inspection in additive manufacturing environments and provides a strong foundation for future intelligent defect diagnosis and troubleshooting systems.
 
-<img width="3000" height="2250" alt="confusion_matrix_normalized" src="https://github.com/user-attachments/assets/0743cf23-3f0a-4479-9360-0506e118fc7c" />
