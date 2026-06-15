@@ -3,7 +3,7 @@
 
 <img width="977" height="152" alt="image" src="https://github.com/user-attachments/assets/dba944af-31d8-47a4-9b2b-23100c40a215" />
 
-PROJECT OVERVIEW
+
 This project aims to develop an automated defect detection system for Fused Deposition Modeling (FDM) 3D printing using computer vision and deep learning. The system is designed to identify common printing defects from images of printed parts and classify them into predefined defect categories.
 
 The project utilizes the YOLO26 object detection model to detect and classify defects directly from images. The final goal is to integrate the model into a defect inspection workflow and potentially extend it into an intelligent troubleshooting chatbot using Ollama and computer vision.
