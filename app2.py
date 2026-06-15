@@ -7,7 +7,6 @@ import base64
 
 app = Flask(__name__)
 
-
 #train12 for daifuku
 #train16 for 3Dprints
 model = YOLO("runs/detect/train-16/weights/best.pt")
