@@ -1,6 +1,7 @@
 
 3D PRINTING DEFECT DETECTION USING YOLO26
-<img width="568" height="2368" alt="image" src="https://github.com/user-attachments/assets/2b1d3e33-7679-4a0a-85c4-80ab43f482b8" />
+
+<img width="100" height="400" alt="image" src="https://github.com/user-attachments/assets/2b1d3e33-7679-4a0a-85c4-80ab43f482b8" />
 
 PROJECT OVERVIEW
 This project aims to develop an automated defect detection system for Fused Deposition Modeling (FDM) 3D printing using computer vision and deep learning. The system is designed to identify common printing defects from images of printed parts and classify them into predefined defect categories.
