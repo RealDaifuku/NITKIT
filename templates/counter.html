@@ -1,0 +1,167 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Object Counter</title>
+
+<style>
+
+body{
+    margin:0;
+    background:#0f172a;
+    color:white;
+    font-family:Arial;
+    text-align:center;
+}
+
+h1{
+    padding-top:20px;
+    font-size:42px;
+}
+
+#video{
+    display:none;
+}
+
+#canvas{
+    width:90%;
+    max-width:900px;
+    border-radius:20px;
+    border:4px solid #2563eb;
+    margin-top:20px;
+    background:black;
+}
+
+.counterBox{
+    font-size:40px;
+    margin-top:20px;
+    color:#38bdf8;
+}
+
+.startBtn{
+    margin-top:20px;
+    padding:15px 35px;
+    font-size:22px;
+    border:none;
+    border-radius:15px;
+    background:#2563eb;
+    color:white;
+    cursor:pointer;
+    transition:0.3s;
+}
+
+.startBtn:hover{
+    background:#1d4ed8;
+    transform:scale(1.05);
+}
+
+.status{
+    margin-top:15px;
+    color:#94a3b8;
+    font-size:18px;
+}
+
+</style>
+</head>
+<body>
+
+<h1>Realtime Object Counter</h1>
+
+<div class="counterBox">
+    Count: <span id="count">0</span>
+</div>
+
+<button class="startBtn" id="startBtn">
+    Start Camera
+</button>
+
+<div class="status" id="status">
+    Camera not started
+</div>
+
+<video id="video" autoplay playsinline></video>
+
+<img id="canvas">
+
+<script>
+
+const video = document.getElementById("video");
+const canvas = document.getElementById("canvas");
+const countText = document.getElementById("count");
+const startBtn = document.getElementById("startBtn");
+const statusText = document.getElementById("status");
+
+let running = false;
+
+async function startCamera(){
+
+    try{
+
+        const stream = await navigator.mediaDevices.getUserMedia({
+            video:{
+                facingMode:"user"
+            },
+            audio:false
+        });
+
+        video.srcObject = stream;
+
+        statusText.innerText = "Camera started";
+
+        running = true;
+
+        setInterval(sendFrame, 200);
+
+        startBtn.disabled = true;
+        startBtn.innerText = "Camera Running";
+
+    }catch(error){
+
+        statusText.innerText = "Camera access denied";
+
+        console.error(error);
+    }
+}
+
+async function sendFrame(){
+
+    if(!running) return;
+
+    if(video.videoWidth === 0) return;
+
+    const tempCanvas = document.createElement("canvas");
+
+    tempCanvas.width = video.videoWidth;
+    tempCanvas.height = video.videoHeight;
+
+    const ctx = tempCanvas.getContext("2d");
+
+    ctx.drawImage(video, 0, 0);
+
+    const imageData = tempCanvas.toDataURL("image/jpeg");
+
+    const response = await fetch("/detect_counter",{
+        method:"POST",
+        headers:{
+            "Content-Type":"application/json"
+        },
+        body:JSON.stringify({
+            image:imageData
+        })
+    });
+
+    const data = await response.json();
+
+    canvas.src = "data:image/jpeg;base64," + data.image;
+
+    countText.innerText = data.count;
+}
+
+startBtn.addEventListener("click", startCamera);
+
+</script>
+
+</body>
+</html>

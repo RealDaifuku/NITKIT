@@ -1,0 +1,616 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Photo Detection</title>
+
+<style>
+
+body{
+    background:#0f172a;
+    color:white;
+    font-family:Arial;
+    text-align:center;
+    padding:20px;
+}
+
+video,img{
+    width:90%;
+    max-width:700px;
+    border-radius:20px;
+    border:3px solid #3b82f6;
+    margin-top:20px;
+}
+
+button{
+    padding:15px 30px;
+    border:none;
+    border-radius:12px;
+    background:#2563eb;
+    color:white;
+    font-size:18px;
+    cursor:pointer;
+    margin:10px;
+}
+
+button:hover{
+    background:#1d4ed8;
+}
+
+select{
+    padding:12px;
+    border-radius:12px;
+    border:none;
+    font-size:16px;
+    margin:10px;
+    min-width:300px;
+}
+
+.bottom_menu{
+    display:flex;
+    margin-top:50px;
+    gap:30px;
+    flex-wrap:wrap;
+    justify-content:center;
+    background:#111827;
+}
+
+.button{
+    width:80px;
+    padding:10px;
+    border-radius:10px;
+    background:#111827;
+    border:2px solid #2563eb;
+    transition:0.3s;
+    cursor:pointer;
+    text-decoration:none;
+    color:white;
+}
+
+.button:hover{
+    transform:translateY(-10px);
+    color:#ff0000;
+    background:#1e293b;
+}
+
+.button_text{
+    font-size:30px;
+}
+
+#statusText{
+    font-size:24px;
+    margin-top:20px;
+    font-weight:bold;
+}
+
+#aiResponse{
+    width:90%;
+    max-width:700px;
+    margin:20px auto;
+    padding:20px;
+    border-radius:15px;
+    background:#111827;
+    border:2px solid #2563eb;
+    text-align:left;
+    font-size:18px;
+    white-space:pre-wrap;
+}
+
+#chatContainer{
+    width:90%;
+    max-width:700px;
+    margin:30px auto;
+    padding:20px;
+    background:#111827;
+    border-radius:15px;
+    border:2px solid #2563eb;
+}
+
+#userPrompt{
+    width:100%;
+    height:120px;
+    background:#0f172a;
+    color:white;
+    border:1px solid #2563eb;
+    border-radius:10px;
+    padding:10px;
+    font-size:16px;
+    resize:vertical;
+}
+
+#chatResponse{
+    margin-top:20px;
+    padding:15px;
+    background:#1e293b;
+    border-radius:10px;
+    text-align:left;
+    white-space:pre-wrap;
+}
+
+</style>
+</head>
+<body>
+
+<h1>Additive Manufacturing Detection</h1>
+
+<!-- Camera capture menu -->
+
+<select id="cameraSelect">
+    <option>Loading cameras...</option>
+</select>
+
+<br>
+
+<button onclick="startCamera()">
+    Start Camera
+</button>
+
+<button onclick="capturePhoto()">
+    Capture Photo
+</button>
+
+<br>
+
+<p id="statusText"></p>
+
+<div id="aiResponse"></div>
+
+<video id="video" autoplay playsinline></video>
+
+<img id="result">
+
+<div class="bottom_menu">
+    <button class="button" type="button" onclick="goHome()">
+        <div class="button_text">back</div>
+    </button>
+</div>
+
+<!-- Mannually talk to Darek -->
+
+<div id="chatContainer">
+
+    <h2>Talk to Darek</h2>
+
+    <textarea
+        id="userPrompt"
+        placeholder="Type a message for Darek..."
+    ></textarea>
+
+    <br>
+
+    <button onclick="sendPrompt()">
+        Send
+    </button>
+
+    <div id="chatResponse"></div>
+
+</div>
+
+<!-- upload image -->
+<br>
+
+<input
+    type="file"
+    id="imageUpload"
+    accept="image/*"
+>
+
+<button onclick="uploadImage()">
+    Upload & Detect
+</button>
+
+<!-- Script and some stuff -->
+
+<script>
+
+const video = document.getElementById("video");
+const result = document.getElementById("result");
+const statusText = document.getElementById("statusText");
+const cameraSelect = document.getElementById("cameraSelect");
+
+let currentStream = null;
+
+window.speechSynthesis.onvoiceschanged = () => {
+
+    const voices = window.speechSynthesis.getVoices();
+
+    console.log("Available voices:");
+
+    voices.forEach(v => {
+        console.log(v.name, v.lang);
+    });
+};
+
+const aiResponse =
+    document.getElementById("aiResponse");
+
+function speak(text){
+
+    window.speechSynthesis.cancel();
+
+    const speech = new SpeechSynthesisUtterance(text);
+
+    const voices = window.speechSynthesis.getVoices();
+
+    // Try to find a female English voice
+    let selectedVoice =
+        voices.find(v =>
+            v.name.includes("Zira") ||
+            v.name.includes("Jenny") ||
+            v.name.includes("Samantha") ||
+            v.name.includes("Haruka") ||
+            v.name.includes("Ayumi") ||
+            v.name.includes("Aria")
+        );
+
+    if(selectedVoice){
+        speech.voice = selectedVoice;
+    }
+
+    speech.rate = 1.0;
+    speech.pitch = 1.6;
+
+    window.speechSynthesis.speak(speech);
+}
+
+// LOAD CAMERAS
+async function loadCameras(){
+
+    try{
+
+        // Request permission so labels become visible
+        const tempStream =
+            await navigator.mediaDevices.getUserMedia({
+                video:true
+            });
+
+        tempStream
+            .getTracks()
+            .forEach(track => track.stop());
+
+        const devices =
+            await navigator.mediaDevices.enumerateDevices();
+
+        const cameras =
+            devices.filter(
+                device => device.kind === "videoinput"
+            );
+
+        cameraSelect.innerHTML = "";
+
+        cameras.forEach((camera,index) => {
+
+            const option =
+                document.createElement("option");
+
+            option.value = camera.deviceId;
+
+            option.text =
+                camera.label ||
+                `Camera ${index + 1}`;
+
+            cameraSelect.appendChild(option);
+
+            console.log(
+                `Camera ${index + 1}:`,
+                camera.label
+            );
+        });
+
+        if(cameras.length === 0){
+
+            statusText.innerText =
+                "No cameras found";
+
+            statusText.style.color =
+                "#ef4444";
+        }
+
+    }
+    catch(error){
+
+        console.error(error);
+
+        statusText.innerText =
+            "Unable to access cameras";
+
+        statusText.style.color =
+            "#ef4444";
+    }
+}
+
+
+// START CAMERA
+async function startCamera(){
+
+    try{
+
+        if(currentStream){
+
+            currentStream
+                .getTracks()
+                .forEach(track => track.stop());
+        }
+
+        const selectedCamera =
+            cameraSelect.value;
+
+        currentStream =
+            await navigator.mediaDevices.getUserMedia({
+
+                video: selectedCamera
+                ? {
+                    deviceId:{
+                        exact:selectedCamera
+                    }
+                }
+                : true,
+
+                audio:false
+            });
+
+        video.srcObject = currentStream;
+
+        statusText.innerText =
+            "Camera started";
+
+        statusText.style.color =
+            "#22c55e";
+
+        console.log(
+            currentStream
+                .getVideoTracks()[0]
+                .getSettings()
+        );
+
+    }
+    catch(error){
+
+        console.error(error);
+
+        statusText.innerText =
+            "Failed to start camera";
+
+        statusText.style.color =
+            "#ef4444";
+    }
+}
+
+
+// CAPTURE PHOTO
+async function capturePhoto(){
+
+    if(!video.srcObject){
+
+        statusText.innerText =
+            "Start camera first";
+
+        statusText.style.color =
+            "#ef4444";
+
+        return;
+    }
+
+    const canvas =
+        document.createElement("canvas");
+
+    const ctx =
+        canvas.getContext("2d");
+
+    canvas.width =
+        video.videoWidth;
+
+    canvas.height =
+        video.videoHeight;
+
+    ctx.drawImage(
+        video,
+        0,
+        0
+    );
+
+    const image =
+        canvas.toDataURL("image/jpeg");
+
+    try{
+
+        const response =
+            await fetch("/detect",{
+
+                method:"POST",
+
+                headers:{
+                    "Content-Type":"application/json"
+                },
+
+                body:JSON.stringify({
+                    image:image
+                })
+            });
+
+        const data =
+            await response.json();
+        
+        aiResponse.innerText = data.llm_response;
+        speak(data.llm_response);
+        
+
+        result.src =
+            "data:image/jpeg;base64," +
+            data.image;
+
+        if(data.detected){
+
+            statusText.innerText =
+                "Match found";
+
+            statusText.style.color =
+                "#22c55e";
+        }
+        else{
+
+            statusText.innerText =
+                "No match detected";
+
+            statusText.style.color =
+                "#ef4444";
+        }
+
+    }
+    catch(error){
+
+        console.error(error);
+
+        statusText.innerText =
+            "Detection failed";
+
+        statusText.style.color =
+            "#ef4444";
+    }
+}
+
+async function uploadImage(){
+
+    const fileInput =
+        document.getElementById("imageUpload");
+
+    if(fileInput.files.length === 0){
+
+        statusText.innerText =
+            "Please choose an image.";
+
+        statusText.style.color =
+            "#ef4444";
+
+        return;
+    }
+
+    const formData =
+        new FormData();
+
+    formData.append(
+        "image",
+        fileInput.files[0]
+    );
+
+    try{
+
+        const response =
+            await fetch(
+                "/detect_upload",
+                {
+                    method:"POST",
+                    body:formData
+                }
+            );
+
+        const data =
+            await response.json();
+
+        console.log(data);
+
+        aiResponse.innerText = data.llm_response;
+        speak(data.llm_response);
+
+        result.src =
+            "data:image/jpeg;base64," +
+            data.image;
+
+        if(data.detected){
+
+            statusText.innerText =
+                "Object detected";
+
+            statusText.style.color =
+                "#22c55e";
+        }
+        else{
+
+            statusText.innerText =
+                "No object detected";
+
+            statusText.style.color =
+                "#ef4444";
+        }
+
+    }
+    catch(error){
+
+        console.error(error);
+
+        statusText.innerText =
+            "Upload failed";
+
+        statusText.style.color =
+            "#ef4444";
+    }
+}
+
+
+// HOME BUTTON
+function goHome(){
+
+    window.location.href = "/";
+}
+
+
+// LOAD CAMERA LIST ON PAGE LOAD
+window.onload = loadCameras;
+
+const chatResponse =
+    document.getElementById("chatResponse");
+
+async function sendPrompt(){
+
+    const prompt =
+        document.getElementById("userPrompt").value;
+
+    if(prompt.trim() === ""){
+        return;
+    }
+
+    chatResponse.innerText =
+        "Thinking...";
+
+    try{
+
+        const response =
+            await fetch("/chat",{
+
+                method:"POST",
+
+                headers:{
+                    "Content-Type":"application/json"
+                },
+
+                body:JSON.stringify({
+                    prompt:prompt
+                })
+            });
+
+        const data =
+            await response.json();
+
+        chatResponse.innerText =
+            data.response;
+
+        speak(data.response);
+
+    }
+    catch(error){
+
+        console.error(error);
+
+        chatResponse.innerText =
+            "Failed to contact Darek.";
+    }
+}
+
+
+
+</script>
+
+</body>
+</html>

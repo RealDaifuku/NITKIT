@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<title>ESP32 MPU6050 Cube</title>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+
+<style>
+body{
+    margin:0;
+    overflow:hidden;
+}
+</style>
+
+</head>
+
+<body>
+
+<script>
+
+const scene = new THREE.Scene();
+
+const camera =
+    new THREE.PerspectiveCamera(
+        75,
+        window.innerWidth/window.innerHeight,
+        0.1,
+        1000
+    );
+
+const renderer =
+    new THREE.WebGLRenderer();
+
+renderer.setSize(
+    window.innerWidth,
+    window.innerHeight
+);
+
+document.body.appendChild(
+    renderer.domElement
+);
+
+const geometry =
+    new THREE.BoxGeometry();
+
+const material =
+    new THREE.MeshNormalMaterial();
+
+const cube =
+    new THREE.Mesh(
+        geometry,
+        material
+    );
+
+scene.add(cube);
+
+camera.position.z = 3;
+
+/*
+Replace IP with ESP32 IP
+*/
+const socket =
+    new WebSocket(
+        "ws://192.168.1.100/ws"
+    );
+
+socket.onmessage = function(event)
+{
+    const data =
+        JSON.parse(event.data);
+
+    cube.rotation.x =
+        THREE.MathUtils.degToRad(
+            data.pitch
+        );
+
+    cube.rotation.z =
+        THREE.MathUtils.degToRad(
+            data.roll
+        );
+
+    cube.rotation.y =
+        THREE.MathUtils.degToRad(
+            data.yaw
+        );
+};
+
+function animate()
+{
+    requestAnimationFrame(
+        animate
+    );
+
+    renderer.render(
+        scene,
+        camera
+    );
+}
+
+animate();
+
+</script>
+
+</body>
+</html>

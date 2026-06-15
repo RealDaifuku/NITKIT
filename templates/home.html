@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>NITKIT AI Detection</title>
+
+<style>
+
+body{
+    margin:0;
+    font-family:Arial;
+    background:linear-gradient(135deg,#0f172a,#1e293b);
+    color:white;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    height:100vh;
+}
+
+.container{
+    text-align:center;
+}
+
+h1{
+    font-size:50px;
+    margin-bottom:10px;
+}
+
+.subtitle{
+    color:#94a3b8;
+    margin-bottom:50px;
+}
+
+.menu{
+    display:flex;
+    gap:30px;
+    flex-wrap:wrap;
+    justify-content:center;
+    background: #111827;
+}
+
+.card{
+    width:300px;
+    padding:40px;
+    border-radius:25px;
+    background:#111827;
+    border:2px solid #2563eb;
+    transition:0.3s;
+    cursor:pointer;
+    text-decoration:none;
+    color:white;
+}
+
+.card:hover{
+    transform:translateY(-10px);
+    background:#1e293b;
+}
+
+.icon{
+    font-size:70px;
+    margin-bottom:20px;
+}
+
+.title{
+    font-size:28px;
+    margin-bottom:15px;
+}
+
+.desc{
+    color:#cbd5e1;
+}
+
+</style>
+</head>
+<body>
+
+<div class="container">
+
+    <h1>NITKIT Vision AI</h1>
+
+    <div class="subtitle">
+        Choose a detection mode
+    </div>
+
+    <div class="menu">
+
+        <!-- <a class="card" href="/realtime">
+
+            <div class="icon">📹</div>
+
+            <div class="title">
+                Realtime Detection
+            </div>
+
+            <div class="desc">
+                Live camera feed with realtime YOLO detection
+            </div>
+
+        </a> -->
+
+        <a class="card" href="/photo">
+
+            <div class="icon">📸</div>
+
+            <div class="title">
+                Photo Detection
+            </div>
+
+            <div class="desc">
+                Capture a single image and run YOLO once
+            </div>
+
+        </a>
+
+        <!-- <a class="card" href="/counter">
+
+            <div class="icon">🔢</div>
+
+            <div class="title">
+                Object Counter
+            </div>
+
+            <div class="desc">
+                Count objects crossing the screen in realtime
+            </div>
+    
+        </a> -->
+
+    </div>
+    
+</div>
+
+</body>
+</html>

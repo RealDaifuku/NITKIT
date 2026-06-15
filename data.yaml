@@ -2,12 +2,12 @@ train: ../train/images
 val: ../valid/images
 test: ../test/images
 
-nc: 2
-names: ['Daifuku', 'Not Daifuku']
+nc: 3
+names: ['crack', 'spaghetti', 'stringing']
 
 roboflow:
-  workspace: yolo6601110266011079
-  project: detection-h81ju
-  version: 2
+  workspace: detection-y0hrz
+  project: 3d-print-fail-detection
+  version: 1
   license: CC BY 4.0
-  url: https://universe.roboflow.com/yolo6601110266011079/detection-h81ju/dataset/2
+  url: https://universe.roboflow.com/detection-y0hrz/3d-print-fail-detection/dataset/1
