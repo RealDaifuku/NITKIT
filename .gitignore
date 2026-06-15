@@ -222,3 +222,16 @@ __marimo__/
 runs/
 *.pt
 tempCodeRunnerFile.py
+
+# Ignore dataset folders
+train/
+test/
+valid/
+**/train/
+**/test/
+**/valid/
+
+
+# YOLO models
+*.pt
+*.pth
